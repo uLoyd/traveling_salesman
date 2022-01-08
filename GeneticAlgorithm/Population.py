@@ -1,3 +1,4 @@
+from __future__ import annotations
 from Point import Point
 from Route import Route
 from Path import Path
@@ -6,19 +7,19 @@ from utils import *
 
 
 # simply adds fitness member
-class PathFitness:
+class PathFitness(Path):
     def __init__(self, path: Path):
-        self.path = path
+        super().__init__(path.routes)
         self.fitness = float('inf')
 
     def __lt__(self, other):
         return self.fitness < other.fitness
 
     def __str__(self):
-        return f"{self.path}, fitness: {self.fitness}"
+        return f"{super()}, fitness: {self.fitness}"
 
-    def copy(self):
-        return PathFitness(self.path.copy())
+    def copy(self) -> PathFitness:
+        return PathFitness(super().copy())
 
 
 def populationGenerator(points: list[Point], pathMap: Path, populationSize: int = 100) -> list[Path]:
@@ -52,7 +53,7 @@ class Population:
 
     def evaluate(self):
         for sample in self.population:
-            sample.fitness = self.fitness(sample.path)
+            sample.fitness = self.fitness(sample)
 
         return self
 

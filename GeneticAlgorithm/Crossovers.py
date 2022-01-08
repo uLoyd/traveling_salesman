@@ -1,7 +1,7 @@
 import math
 from Path import Path
 from Point import Point
-from random import randint, uniform
+from random import randint, uniform, choice
 from utils import *
 
 
@@ -12,28 +12,26 @@ def swapPoints(points: list[Point], val1: Point, val2: Point):
 
 
 def pointListCorrections(points: list[Point], allPoints: set[Point]) -> list[Point]:
-    repeated = []
-    omitted = []
+    newPoints = list()
+    checkPoints = set()
+    notUsedPoints = allPoints.difference(set(points.copy()))
 
-    for point in set(allPoints):
-        l: int = count(points, lambda x: x == point)
-        if l > 1:
-            repeated.append(point.copy())
-        elif l == 0:
-            omitted.append(point.copy())
+    if not notUsedPoints:
+        return points
 
-    while len(omitted):
-        lenOmitted = len(omitted) - 1
-        omittedIndex = randint(0, lenOmitted)
-        repeatedIndex = findFirstIndex(points, lambda x: x == repeated[0])
-        points[repeatedIndex] = omitted[omittedIndex]
+    for point in points:
+        l1 = len(checkPoints)
+        checkPoints.add(point)
+        l2 = len(checkPoints)
 
-        del omitted[omittedIndex]
+        if l1 == l2:
+            randomNotUsedPoint = choice(tuple(notUsedPoints)).copy()
+            newPoints.append(randomNotUsedPoint)
+            notUsedPoints.remove(randomNotUsedPoint)
+        else:
+            newPoints.append(point.copy())
 
-        if count(points, lambda x: x == repeated[0]) == 1:
-            del repeated[0]
-
-    return points
+    return newPoints
 
 
 class ICrossover:
@@ -57,10 +55,8 @@ class UniformCrossoverWithCorrection(ICrossover):
                 pl1[i] = o2
                 pl2[i] = o1
 
-        pl1 = pointListCorrections(pl1, allPoints)
-        pl2 = pointListCorrections(pl2, allPoints)
-        path1.reconstructRoutes(pathMap, pl1)
-        path2.reconstructRoutes(pathMap, pl2)
+        path1.reconstructRoutes(pathMap, pointListCorrections(pl1, allPoints))
+        path2.reconstructRoutes(pathMap, pointListCorrections(pl2, allPoints))
 
 
 class KPointCrossoverWithCorrection(ICrossover):
@@ -91,11 +87,8 @@ class KPointCrossoverWithCorrection(ICrossover):
             if not change:
                 pl2[i] = o1
 
-        pl1 = pointListCorrections(pl1, allPoints)
-        pl2 = pointListCorrections(pl2, allPoints)
-        path1.reconstructRoutes(pathMap, pl1)
-        path2.reconstructRoutes(pathMap, pl2)
-
+        path1.reconstructRoutes(pathMap, pointListCorrections(pl1, allPoints))
+        path2.reconstructRoutes(pathMap, pointListCorrections(pl2, allPoints))
 
 # class UniformCrossover(ICrossover):
 #     def __init__(self, probability: float):

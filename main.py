@@ -107,8 +107,8 @@ def print_hi(name):
             UniformCrossoverWithCorrection(0.5),
             UniformCrossoverWithCorrection(0.3),
         ]
-
     crossovers.reverse()
+
     popChange = DefaultPopulationChange(
         crossovers,
         set(points),
@@ -118,7 +118,7 @@ def print_hi(name):
     bestOfAll = pop.population[0]
     lastBest = pop.population[0]
 
-    for route in bestOfAll.path.routes:
+    for route in bestOfAll.routes:
         displayMap.drawRoute(window, route, [255, 0, 0])
 
     displayMap.drawPoints(window)
@@ -134,19 +134,16 @@ def print_hi(name):
         if bestOfAll.fitness > newBest.fitness:
             lastBest = bestOfAll.copy()
 
-            # for route in lastBest.path.routes:
-            #     displayMap.drawRoute(window, route, [255, 0, 0])
-
             bestOfAll = newBest.copy()
-            bestOfAll.fitness = fitness(bestOfAll.path)
-            print('\n' + str(fitness(bestOfAll.path)) + '\n')
-            print("")
+            bestOfAll.fitness = fitness(bestOfAll)
+            print('\nnew best: ' + str(fitness(bestOfAll)) + '\n')
+
             window.fill([0, 0, 0])
 
-            for route in lastBest.path.routes:
+            for route in lastBest.routes:
                 displayMap.drawRoute(window, route, [50, 50, 0])
 
-            for route in bestOfAll.path.routes:
+            for route in bestOfAll.routes:
                 displayMap.drawRoute(window, route, [255, 0, 0])
 
             displayMap.drawPoints(window)
@@ -162,8 +159,5 @@ def print_hi(name):
                 pg.quit()
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
