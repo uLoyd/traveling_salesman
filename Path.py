@@ -46,6 +46,15 @@ class Path:
 
         return route1
 
+    def getRouteRef(self, point1: Point, point2: Point) -> Route:
+        route1 = Route(point1, point2)
+        r1 = findFirst(self.routes, lambda route: route == route1)
+
+        if r1:
+            return r1
+
+        return findFirst(self.routes, lambda route: route.p2 == route1.p1 and route.p1 == route1.p2)
+
     def pointList(self) -> list[Point]:
         output = list()
         output.append(self.routes[0].p1)

@@ -12,12 +12,13 @@ def swapPoints(points: list[Point], val1: Point, val2: Point):
 
 
 def pointListCorrections(points: list[Point], allPoints: set[Point]) -> list[Point]:
-    newPoints = list()
-    checkPoints = set()
     notUsedPoints = allPoints.difference(set(points.copy()))
 
     if not notUsedPoints:
         return points
+
+    newPoints = list()
+    checkPoints = set()
 
     for point in points:
         l1 = len(checkPoints)
@@ -25,11 +26,11 @@ def pointListCorrections(points: list[Point], allPoints: set[Point]) -> list[Poi
         l2 = len(checkPoints)
 
         if l1 == l2:
-            randomNotUsedPoint = choice(tuple(notUsedPoints)).copy()
+            randomNotUsedPoint = choice(tuple(notUsedPoints))
             newPoints.append(randomNotUsedPoint)
             notUsedPoints.remove(randomNotUsedPoint)
         else:
-            newPoints.append(point.copy())
+            newPoints.append(point)
 
     return newPoints
 

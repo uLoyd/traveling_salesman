@@ -5,9 +5,9 @@ from Route import Route, routeGenerator
 from Path import Path
 from GeneticAlgorithm.Population import Population
 from GeneticAlgorithm.PopulationChange import DefaultPopulationChange
+import time
 from GeneticAlgorithm.Crossovers import *
 from utils import *
-import time
 import pygame as pg
 from Display.DisplayMap import DisplayMap
 
@@ -15,7 +15,7 @@ from Display.DisplayMap import DisplayMap
 def fitness(path: Path):
     if findFirst(path.routes, lambda route: route.restricted):
         return float('inf')
-    return path.length()
+    return 0.6 * path.length() + 0.4 * path.time()
 
 
 def userInput(routes: list[Route]):
@@ -93,13 +93,29 @@ def print_hi(name):
         Point(806, 1078),
         Point(821, 1001),
     ]
+
+    restrictedRoutes = [
+        Route(points[0], points[2]),
+        Route(points[6], points[5]),
+        Route(points[7], points[8]),
+        Route(points[1], points[12]),
+        Route(points[7], points[16]),
+        Route(points[20], points[21]),
+        Route(points[3], points[10])
+    ]
+
     displayMap = DisplayMap(points, 1000, 950, 10, 10)
 
     pathMap = Path(routeGenerator(points))
+
+    for route in restrictedRoutes:
+        pathMap.getRouteRef(route.p1, route.p2).restrict()
+
     pop = Population(fitness)
     pop.populate(points, pathMap, 500).evaluate().sort(reverse=False)
 
     crossovers = [
+            KPointCrossoverWithCorrection(12),
             KPointCrossoverWithCorrection(7),
             KPointCrossoverWithCorrection(5),
             KPointCrossoverWithCorrection(3),
@@ -107,6 +123,7 @@ def print_hi(name):
             UniformCrossoverWithCorrection(0.5),
             UniformCrossoverWithCorrection(0.3),
         ]
+
     crossovers.reverse()
 
     popChange = DefaultPopulationChange(
@@ -118,8 +135,8 @@ def print_hi(name):
     bestOfAll = pop.population[0]
     lastBest = pop.population[0]
 
-    for route in bestOfAll.routes:
-        displayMap.drawRoute(window, route, [255, 0, 0])
+    displayMap.drawRestrictedRoutes(window, restrictedRoutes)
+    displayMap.drawRoutes(window, bestOfAll.routes, [0, 255, 50])
 
     displayMap.drawPoints(window)
     pg.display.update()
@@ -140,11 +157,9 @@ def print_hi(name):
 
             window.fill([0, 0, 0])
 
-            for route in lastBest.routes:
-                displayMap.drawRoute(window, route, [50, 50, 0])
-
-            for route in bestOfAll.routes:
-                displayMap.drawRoute(window, route, [255, 0, 0])
+            displayMap.drawRestrictedRoutes(window, restrictedRoutes)
+            displayMap.drawRoutes(window, lastBest.routes, [50, 50, 0])
+            displayMap.drawRoutes(window, bestOfAll.routes, [0, 255, 50])
 
             displayMap.drawPoints(window)
             pg.display.update()

@@ -31,6 +31,16 @@ class DisplayMap:
 
         pg.draw.line(window, colour, (x1, y1), (x2, y2), 2)
 
+    def drawRoutes(self, window, routes: list[Route], colour: list[int]):
+        for route in routes:
+            self.drawRoute(window, route, colour)
+
+    def drawRestrictedRoutes(self, window, routeList: list[Route], colour=None):
+        if not colour:
+            colour = [255, 0, 0]
+
+        self.drawRoutes(window, routeList, colour)
+
     def mapCoords(self, point: Point) -> tuple[int, int]:
         newX = mapAxis(point.x, self.width, self.x, self.oldXRange, self.oldXMin)
         newY = mapAxis(point.y, self.height, self.y, self.oldYRange, self.oldYMin)
@@ -44,4 +54,4 @@ class DisplayMap:
             # print(f"Pos: {newX}, {newY}\n\n")
             pg.draw.circle(window, [0, 0, 255], (newX, newY), 5, 10)
 
-        #pg.quit()
+        # pg.quit()
