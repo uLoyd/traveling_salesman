@@ -17,14 +17,14 @@ class IPopulationChange:
         raise Exception("Abstract")
 
 
-def handlePath(Path, length, pathMap) -> None:
+def handlePath(path, length, pathMap) -> None:
     available = list(range(length))
     ind1 = available[randint(0, len(available) - 1)]
     del available[ind1]
     ind2 = available[randint(0, len(available) - 1)]
-    pointList = Path.pointList()
+    pointList = path.pointList()
     pointList[ind1], pointList[ind2] = pointList[ind2], pointList[ind1]
-    Path.reconstructRoutes(pathMap, pointList)
+    path.reconstructRoutes(pathMap, pointList)
 
 
 class DefaultPopulationChange(IPopulationChange):
@@ -45,12 +45,12 @@ class DefaultPopulationChange(IPopulationChange):
         length = len(population[0].pointList()) - 1
         quarterLength = round(length / 4)
 
-        for Path in population:
+        for path in population:
             if uniform(0, 1) <= self.mutationChance:
                 mutationAmount = randint(1, quarterLength)
 
                 for _ in range(mutationAmount):
-                    handlePath(Path, length, pathMap)
+                    handlePath(path, length, pathMap)
 
     def perform(self, population: list[Path], pathMap: Path) -> list[Path]:
         goodEnoughRoutesLength = len(population) - self.bestThreshold
