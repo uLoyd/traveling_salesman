@@ -4,20 +4,20 @@ from Point import Point
 
 
 class Route:
-    # speed: (0, inf]
+    # speed: (0, inf] - 0 excluded
     def __init__(self, point1: Point, point2: Point, maxSpeed: float = 1, restricted: bool = False):
         self.p1 = point1
         self.p2 = point2
         self.speed = maxSpeed
         self.restricted = restricted
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return (self.p1 == other.p1) and (self.p2 == other.p2)
 
-    def __hash__(self):
+    def __hash__(self) -> hash:
         return hash(self.p1) ^ hash(self.p2)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Route: [{self.p1}, {self.p2}, restricted: {self.restricted}, " \
                f"speed: {self.speed}, length: {self.length()}, time: {self.time()}]"
 
@@ -31,7 +31,7 @@ class Route:
         self.restricted = True
 
     def copy(self) -> Route:
-        return Route(self.p1.copy(), self.p2.copy())
+        return Route(self.p1.copy(), self.p2.copy(), self.speed, self.restricted)
 
 
 def routeGenerator(points: list[Point]) -> list[Route]:
@@ -40,6 +40,6 @@ def routeGenerator(points: list[Point]) -> list[Route]:
 
     for p1Index, point1 in enumerate(points):
         for p2Index in range(pointsLength - p1Index):
-            routes.append(Route(point1, points[p1Index + p2Index + 1]))
+            routes.append(Route(point1.copy(), points[p1Index + p2Index + 1].copy()))
 
     return routes

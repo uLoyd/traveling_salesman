@@ -1,25 +1,7 @@
 from __future__ import annotations
 from Point import Point
-from Route import Route
 from Path import Path
 from random import randint
-from utils import *
-
-
-# simply adds fitness member
-class PathFitness(Path):
-    def __init__(self, path: Path):
-        super().__init__(path.routes)
-        self.fitness = float('inf')
-
-    def __lt__(self, other):
-        return self.fitness < other.fitness
-
-    def __str__(self):
-        return f"{super()}, fitness: {self.fitness}"
-
-    def copy(self) -> PathFitness:
-        return PathFitness(super().copy())
 
 
 def populationGenerator(points: list[Point], pathMap: Path, populationSize: int = 100) -> list[Path]:
@@ -46,21 +28,21 @@ def populationGenerator(points: list[Point], pathMap: Path, populationSize: int 
 
 
 class Population:
-    def __init__(self, fitness, generator = populationGenerator):
+    def __init__(self, fitness, generator=populationGenerator):
         self.generator = generator
         self.fitness = fitness
-        self.population: list[PathFitness] = list()
+        self.population: list[Path] = list()
 
-    def evaluate(self):
+    def evaluate(self) -> Population:
         for sample in self.population:
             sample.fitness = self.fitness(sample)
 
         return self
 
-    def populate(self, *args):
-        self.population = mapList(self.generator(*args), lambda path: PathFitness(path))
+    def populate(self, *args) -> Population:
+        self.population = self.generator(*args)
         return self
 
-    def sort(self, **kwargs):
+    def sort(self, **kwargs) -> Population:
         self.population.sort(**kwargs)
         return self

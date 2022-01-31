@@ -12,7 +12,16 @@ def findFirst(someList: list, predicate):
     if len(output) == 0:
         return False
 
-    return output[0]
+    else:
+        return output[0]
+
+
+def some(someList: list, predicate) -> bool:
+    for i in range(len(someList) - 1):
+        if predicate(someList[i]):
+            return True
+
+    return False
 
 
 def findFirstIndex(someList: list, predicate) -> int:

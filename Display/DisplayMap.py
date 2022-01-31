@@ -50,8 +50,4 @@ class DisplayMap:
     def drawPoints(self, window) -> None:
         for point in self.points:
             newX, newY = self.mapCoords(point)
-            # print(f"Old: {point.x}, {point.y}")
-            # print(f"Pos: {newX}, {newY}\n\n")
             pg.draw.circle(window, [0, 0, 255], (newX, newY), 5, 10)
-
-        # pg.quit()

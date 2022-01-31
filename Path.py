@@ -5,16 +5,28 @@ from utils import *
 
 
 class Path:
-    def __init__(self, routes: list[Route]):
+    def __init__(self, routes: list[Route], fitness: float=float('inf')):
         self.routes = routes
+        self.fitness = fitness
 
-    def __str__(self):
+    def __hash__(self) -> hash:
+        out = hash(self.routes[0])
+
+        for i in range(1, len(self.routes) - 1):
+            out = out ^ hash(self.routes[i])
+
+        return out
+
+    def __str__(self) -> str:
         outStr = "Path: ["
 
         for route in self.routes:
             outStr += f"\n\t{route},"
 
         return f"{outStr}\n], length: {self.length()}, time: {self.time()}"
+
+    def __lt__(self, other):
+        return self.fitness < other.fitness
 
     def length(self) -> float:
         pathLength = 0
@@ -53,7 +65,7 @@ class Path:
         if r1:
             return r1
 
-        return findFirst(self.routes, lambda route: route.p2 == route1.p1 and route.p1 == route1.p2)
+        return self.getRouteRef(point2, point1)
 
     def pointList(self) -> list[Point]:
         output = list()

@@ -1,11 +1,10 @@
 import math
 from Path import Path
 from Point import Point
-from random import randint, uniform, choice
-from utils import *
+from random import uniform, choice
 
 
-def swapPoints(points: list[Point], val1: Point, val2: Point):
+def swapPoints(points: list[Point], val1: Point, val2: Point) -> None:
     ind1 = points.index(val1)
     ind2 = points.index(val2)
     points[ind1], points[ind2] = points[ind2], points[ind1]
@@ -36,7 +35,7 @@ def pointListCorrections(points: list[Point], allPoints: set[Point]) -> list[Poi
 
 
 class ICrossover:
-    def cross(self, pathMap: Path, path1: Path, path2: Path, allPoints: set[Point]):
+    def cross(self, pathMap: Path, path1: Path, path2: Path, allPoints: set[Point]) -> None:
         raise Exception("Abstract")
 
 
@@ -44,7 +43,7 @@ class UniformCrossoverWithCorrection(ICrossover):
     def __init__(self, probability: float):
         self.probability = probability
 
-    def cross(self, pathMap: Path, path1: Path, path2: Path, allPoints: set[Point]):
+    def cross(self, pathMap: Path, path1: Path, path2: Path, allPoints: set[Point]) -> None:
         pl1 = path1.pointList()
         pl2 = path2.pointList()
         length = len(pl1)
@@ -64,7 +63,7 @@ class KPointCrossoverWithCorrection(ICrossover):
     def __init__(self, k: int = 1):
         self.k = k
 
-    def cross(self, pathMap: Path, path1: Path, path2: Path, allPoints: set[Point]):
+    def cross(self, pathMap: Path, path1: Path, path2: Path, allPoints: set[Point]) -> None:
         pl1 = path1.pointList()
         pl2 = path2.pointList()
         length = len(pl1)
@@ -90,50 +89,3 @@ class KPointCrossoverWithCorrection(ICrossover):
 
         path1.reconstructRoutes(pathMap, pointListCorrections(pl1, allPoints))
         path2.reconstructRoutes(pathMap, pointListCorrections(pl2, allPoints))
-
-# class UniformCrossover(ICrossover):
-#     def __init__(self, probability: float):
-#         self.probability = probability
-#
-#     def cross(self, pathMap: Path, path1: Path, path2: Path):
-#         pl1 = path1.pointList()
-#         pl2 = path2.pointList()
-#         length = len(pl1)
-#
-#         for i in range(length - 1):
-#             if uniform(0, 1) <= self.probability:
-#                 o1 = pl1[i].copy()
-#                 o2 = pl2[i].copy()
-#                 swapPoints(pl1, o1, o2)
-#                 swapPoints(pl2, o1, o2)
-#
-#         path1.reconstructRoutes(pathMap, pl1)
-#         path2.reconstructRoutes(pathMap, pl2)
-#
-#
-# class KPointCrossover(ICrossover):
-#     def __init__(self, k: int = 1):
-#         self.k = k
-#
-#     def cross(self, pathMap: Path, path1: Path, path2: Path):
-#         pl1 = path1.pointList()
-#         pl2 = path2.pointList()
-#         length = len(pl1)
-#
-#         if length <= self.k - 2:
-#             raise Exception(f"{self.k}-point crossover can't be performed on {length}-element point list")
-#
-#         initial = 0
-#         for i in range(self.k):
-#             furthestPoint = length - self.k + i
-#             crossStartPoint = randint(initial, furthestPoint - 1)
-#             crossEndPoint = (randint(crossStartPoint, furthestPoint), length - 1)[i == length - 1]
-#
-#             for j in range(crossStartPoint, crossEndPoint):
-#                 swapPoints(pl1, pl1[j], pl2[j])
-#                 swapPoints(pl2, pl1[j], pl2[j])
-#
-#             initial = crossEndPoint
-#
-#         path1.reconstructRoutes(pathMap, pl1)
-#         path2.reconstructRoutes(pathMap, pl2)
