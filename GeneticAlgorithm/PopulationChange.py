@@ -48,16 +48,13 @@ class DefaultPopulationChange(IPopulationChange):
         for path in population:
             if uniform(0, 1) <= self.mutationChance:
                 mutationAmount = randint(1, quarterLength)
-
-                for _ in range(mutationAmount):
-                    handlePath(path, length, pathMap)
+                [handlePath(path, length, pathMap) for _ in range(mutationAmount)]
 
     def perform(self, population: list[Path], pathMap: Path) -> list[Path]:
         goodEnoughRoutesLength = len(population) - self.bestThreshold
         newPopulation = list()
 
-        for i in range(self.bestThreshold):
-            newPopulation.append(population[i].copy())
+        [newPopulation.append(population[i].copy()) for i in range(self.bestThreshold)]
 
         self.cross(population[:goodEnoughRoutesLength], pathMap)
         self.mutate(population[:goodEnoughRoutesLength], pathMap)

@@ -43,3 +43,13 @@ BestLastDisplay = DisplayResults(pg) \
     .setText("0") \
     .setColour((255, 255, 125)) \
     .setPosition(720, 290)
+
+AverageTimeTitle = DisplayResults(pg) \
+    .setText("Average time of calculation: ") \
+    .setColour((255, 60, 170)) \
+    .setPosition(720, 330)
+
+AverageTime = DisplayResults(pg) \
+    .setText("0") \
+    .setColour((255, 60, 170)) \
+    .setPosition(720, 370)

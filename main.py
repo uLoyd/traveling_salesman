@@ -1,6 +1,7 @@
 import sys
+from time import time
+
 from ConfigReader import ConfigReader
-from Display.DisplayResults import *
 from Display.TextFields import *
 from Route import Route, routeGenerator
 from GeneticAlgorithm.Population import Population
@@ -64,6 +65,8 @@ def refreshTextFields(window):
     BestCurrentLength.create(window)
     BestLastDisplayTitle.create(window)
     BestLastDisplay.create(window)
+    AverageTimeTitle.create(window)
+    AverageTime.create(window)
 
 
 def setup():
@@ -77,24 +80,18 @@ def setup():
     else:
         mapPoints = defaultPoints.copy()
 
-    points = mapPoints
-    defRoutes = mapList(definedRoutes, lambda x: x.copy())
-
-    restrictedRoutes = mapList(filteredList(defRoutes, lambda x: x.restricted), lambda x: x.copy())
-
-    pathMap = Path(routeGenerator(points.copy()))
-
+    pathMap = Path(routeGenerator(mapPoints))
     assignRouteSpeed(definedRoutes, pathMap)
 
-    for route in restrictedRoutes:
-        pathMap.getRouteRef(route.p1, route.p2).restrict()
+    restrictedRoutes = list(filter(lambda route: route.restricted, definedRoutes))
+    [pathMap.getRouteRef(route.p1, route.p2).restrict() for route in restrictedRoutes]
 
     pop = Population(fitness)
 
     if configReader.populationPath.exists():
         pop.population = configReader.getPopulation()
     else:
-        pop.populate(points.copy(), pathMap, 500).evaluate().sort(reverse=False)
+        pop.populate(mapPoints, pathMap, 500).evaluate().sort(reverse=False)
 
     crossovers = [
         UniformCrossoverWithCorrection(0.3),
@@ -106,11 +103,7 @@ def setup():
         KPointCrossoverWithCorrection(12),
     ]
 
-    popChange = DefaultPopulationChange(
-        crossovers,
-        set(points.copy()),
-        10,
-        0.5)
+    popChange = DefaultPopulationChange(crossovers, set(mapPoints), 10, 0.5)
 
     pop.evaluate().sort(reverse=False)
     bestOfAll = pop.population[0]
@@ -122,7 +115,7 @@ def setup():
 
     refreshTextFields(window)
 
-    displayMap = DisplayMap(points.copy(), 700, 700, 10, 10)
+    displayMap = DisplayMap(mapPoints, 700, 700, 10, 10)
     displayMap.drawRestrictedRoutes(window, restrictedRoutes)
     displayMap.drawRoutes(window, bestOfAll.routes, [0, 255, 50])
 
@@ -130,13 +123,30 @@ def setup():
     pg.display.update()
 
     iterations = 0
+    calculation_time_total = 0
     run = True
 
+    def new_frame():
+        window.fill([0, 0, 0])
+        AverageTime.setText("{:.6f}".format(calculation_time_total / (iterations)))
+        displayMap.drawRestrictedRoutes(window, restrictedRoutes)
+        displayMap.drawRoutes(window, lastBest.routes, [50, 50, 0])
+        displayMap.drawRoutes(window, bestOfAll.routes, [0, 255, 50])
+
+        displayMap.drawPoints(window)
+        refreshTextFields(window)
+        pg.display.update()
+
+
     while run:
+        calculation_time_start = time()
+
         pop.population = popChange.perform(pop.population, pathMap)
         pop.evaluate().sort(reverse=False)
 
         newBest = pop.population[0]
+
+        calculation_time_total += time() - calculation_time_start
 
         if bestOfAll.fitness > newBest.fitness:
             lastBest = bestOfAll.copy()
@@ -145,27 +155,16 @@ def setup():
             bestOfAll.fitness = fitness(bestOfAll)
             print('\nnew best: ' + str(fitness(bestOfAll)) + '\n')
 
-            window.fill([0, 0, 0])
-
-            displayMap.drawRestrictedRoutes(window, restrictedRoutes)
-            displayMap.drawRoutes(window, lastBest.routes, [50, 50, 0])
-            displayMap.drawRoutes(window, bestOfAll.routes, [0, 255, 50])
-
-            displayMap.drawPoints(window)
-
-            BestCurrentDisplay.setText("{:.2f}".format(bestOfAll.fitness)).create(window)
-            BestLastDisplay.setText(str(iterations)).create(window)
-            BestCurrentTime.setText("{:.2f}".format(bestOfAll.time())).create(window)
-            BestCurrentLength.setText("{:.2f}".format(bestOfAll.length())).create(window)
-
-            refreshTextFields(window)
-
-            pg.display.update()
+            BestCurrentDisplay.setText("{:.2f}".format(bestOfAll.fitness))
+            BestLastDisplay.setText(str(iterations))
+            BestCurrentTime.setText("{:.2f}".format(bestOfAll.time()))
+            BestCurrentLength.setText("{:.2f}".format(bestOfAll.length()))
 
         else:
             sys.stdout.write("\r# " + str(bestOfAll.fitness) + " it: " + str(iterations))
 
         iterations += 1
+        new_frame()
 
         for event in pg.event.get():
             if event.type == pg.QUIT:

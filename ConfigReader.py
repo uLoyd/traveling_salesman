@@ -40,7 +40,7 @@ class ConfigReader:
             p2 = points[int(route['point2'])]
             speed = float(route['speed'])
             restricted = route['restricted'] == 'y'
-            routes.append(Route(p1.copy(), p2.copy(), speed, restricted))
+            routes.append(Route(p1, p2, speed, restricted))
 
         return points, routes
 

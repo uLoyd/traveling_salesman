@@ -29,65 +29,39 @@ class Path:
         return self.fitness < other.fitness
 
     def length(self) -> float:
-        pathLength = 0
-
-        for route in self.routes:
-            pathLength += route.length()
-
-        return pathLength
+        return sum([route.length() for route in self.routes])
 
     def time(self) -> float:
-        pathTime = 0
-
-        for route in self.routes:
-            pathTime += route.time()
-
-        return pathTime
+        return sum([route.time() for route in self.routes])
 
     def getRoute(self, point1: Point, point2: Point) -> Route:
         route1 = Route(point1, point2)
-        r1 = findFirst(self.routes, lambda route: route == route1)
+        r1 = next(iter(route for route in self.routes if route == route1), None)
 
         if r1:
             return r1
 
         route2 = Route(point2, point1)
-        r2 = findFirst(self.routes, lambda route: route == route2)
+        r2 = next(iter(route for route in self.routes if route == route2), None)
         route1.speed = r2.speed
         route1.restricted = r2.restricted
 
         return route1
 
     def getRouteRef(self, point1: Point, point2: Point) -> Route:
-        route1 = Route(point1, point2)
-        r1 = findFirst(self.routes, lambda route: route == route1)
+        route_from_points = Route(point1, point2)
+        found_route = next(iter(route for route in self.routes if route == route_from_points), None)
 
-        if r1:
-            return r1
-
-        return self.getRouteRef(point2, point1)
+        return found_route if found_route else self.getRouteRef(point2, point1)
 
     def pointList(self) -> list[Point]:
-        output = list()
-        output.append(self.routes[0].p1)
-
-        for route in self.routes:
-            output.append(route.p2)
-
+        output = [self.routes[0].p1]
+        [output.append(route.p2) for route in self.routes]
         return list(output)
 
     def copy(self) -> Path:
-        routes = list()
-        for route in self.routes:
-            routes.append(route.copy())
-
-        return Path(routes)
+        return Path([route.copy() for route in self.routes])
 
     def reconstructRoutes(self, pathMap, points: list[Point]) -> None:
         length = len(points) - 1
-        routes = list()
-
-        for i in range(length):
-            routes.append(pathMap.getRoute(points[i], points[i + 1]))
-
-        self.routes = routes
+        self.routes = [pathMap.getRoute(points[i], points[i + 1]) for i in range(length)]

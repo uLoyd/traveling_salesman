@@ -39,7 +39,6 @@ def routeGenerator(points: list[Point]) -> list[Route]:
     pointsLength = len(points) - 1
 
     for p1Index, point1 in enumerate(points):
-        for p2Index in range(pointsLength - p1Index):
-            routes.append(Route(point1.copy(), points[p1Index + p2Index + 1].copy()))
+        [routes.append(Route(point1, points[p1Index + p2Index + 1])) for p2Index in range(pointsLength - p1Index)]
 
     return routes
